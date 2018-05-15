@@ -104,7 +104,25 @@ func NewWriter(addr string) (*Writer, error) {
 	w := new(Writer)
 	w.CompressionLevel = flate.BestSpeed
 
-	if w.conn, err = net.Dial("tcp", addr); err != nil {
+	if w.conn, err = net.Dial("udp", addr); err != nil {
+		return nil, err
+	}
+	if w.hostname, err = os.Hostname(); err != nil {
+		return nil, err
+	}
+
+	w.Facility = path.Base(os.Args[0])
+
+	return w, nil
+}
+
+// NewWriterTCP returns a new GELF writer using TCP for the underlying protocol
+func NewWriterTCP(addr string) (*Writer, error) {
+	var err error
+	w := new(Writer)
+	w.CompressionLevel = flate.BestSpeed
+
+	if w.conn, err = net.Dial("udp", addr); err != nil {
 		return nil, err
 	}
 	if w.hostname, err = os.Hostname(); err != nil {
